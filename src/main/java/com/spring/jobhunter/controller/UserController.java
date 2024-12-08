@@ -2,10 +2,11 @@ package com.spring.jobhunter.controller;
 
 import com.spring.jobhunter.domain.User;
 import com.spring.jobhunter.service.UserService;
-import com.spring.jobhunter.service.error.IdInvalidException;
+import com.spring.jobhunter.util.error.IdInvalidException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +15,9 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/")
     public String getHelloWorld() {
@@ -34,6 +38,8 @@ public class UserController {
 
     @PostMapping("/users")
     public ResponseEntity<User> saveUser(@RequestBody User user) {
+        String hashPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashPassword);
         User savedUser = userService.saveOrUpdateUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
@@ -43,8 +49,6 @@ public class UserController {
         User updatedUser = userService.saveOrUpdateUser(user);
         return ResponseEntity.ok(updatedUser);
     }
-
-
 
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable("id") Long id) throws IdInvalidException {

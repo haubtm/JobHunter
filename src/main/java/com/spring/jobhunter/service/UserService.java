@@ -9,4 +9,5 @@ public interface UserService {
     public User getUserById(Long id);
     public User saveOrUpdateUser(User user);
     public void deleteUser(Long id);
+    User getUserByUsername(String username);
 }

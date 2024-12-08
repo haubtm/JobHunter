@@ -32,4 +32,9 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
+    @Override
+    public User getUserByUsername(String username) {
+        return userRepository.findByEmail(username);
+    }
 }
