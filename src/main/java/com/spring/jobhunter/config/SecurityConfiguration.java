@@ -32,11 +32,11 @@ public class SecurityConfiguration {
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(customAuthenticationEntryPoint))
-                .exceptionHandling(
-                        e -> e
-                                .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) // 401
-                                .accessDeniedHandler(new BearerTokenAccessDeniedHandler()) // 403
-                )
+//                .exceptionHandling(
+//                        e -> e
+//                                .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint()) // 401
+//                                .accessDeniedHandler(new BearerTokenAccessDeniedHandler()) // 403
+//                )
                 .formLogin(f -> f.disable())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
