@@ -1,5 +1,7 @@
 package com.spring.jobhunter.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.spring.jobhunter.util.SecurityUtil;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -24,8 +26,16 @@ public class Company {
 
     private String address;
     private String logo;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GTM+7")
     private Instant createdAt;
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;
+
+    @PrePersist
+    public void handleBeforeInsert() {
+        this.createdBy = SecurityUtil.getCurrentUserLogin().orElse("system");
+        this.createdAt = Instant.now();
+    }
 }
