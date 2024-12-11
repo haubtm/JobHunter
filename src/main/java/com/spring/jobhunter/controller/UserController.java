@@ -1,15 +1,19 @@
 package com.spring.jobhunter.controller;
 
 import com.spring.jobhunter.domain.User;
+import com.spring.jobhunter.domain.dto.ResultPaginationDTO;
 import com.spring.jobhunter.service.UserService;
 import com.spring.jobhunter.util.error.IdInvalidException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UserController {
@@ -25,9 +29,15 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getUser() {
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.status(HttpStatus.OK).body(users);
+    public ResponseEntity<ResultPaginationDTO> getUser(
+            @RequestParam("current") Optional<String> current,
+            @RequestParam("pageSize") Optional<String> pageSize
+            ) {
+        String sCurrent = current.orElse("1");
+        String sPageSize = pageSize.orElse("10");
+        Pageable pageable = PageRequest.of(Integer.parseInt(sCurrent) - 1, Integer.parseInt(sPageSize));
+        ResultPaginationDTO rs = userService.getAllUsers(pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(rs);
     }
 
     @GetMapping("/users/{id}")
