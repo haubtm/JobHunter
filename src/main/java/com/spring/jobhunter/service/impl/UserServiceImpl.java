@@ -8,6 +8,7 @@ import com.spring.jobhunter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,19 +19,19 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
-    public ResultPaginationDTO getAllUsers(Pageable pageable) {
-        Page<User> pageUser = userRepository.findAll(pageable);
+    public ResultPaginationDTO getAllUsers(Specification<User> userSpecification) {
+        List<User> pageUser = userRepository.findAll(userSpecification);
         ResultPaginationDTO rs = new ResultPaginationDTO();
         Meta meta = new Meta();
 
-        meta.setPage(pageUser.getNumber());
-        meta.setPageSize(pageUser.getSize());
-
-        meta.setPages(pageUser.getTotalPages());
-        meta.setTotal(pageUser.getTotalElements());
+//        meta.setPage(pageUser.getNumber() + 1);
+//        meta.setPageSize(pageUser.getSize());
+//
+//        meta.setPages(pageUser.getTotalPages());
+//        meta.setTotal(pageUser.getTotalElements());
 
         rs.setMeta(meta);
-        rs.setResult(pageUser.getContent());
+        rs.setResult(pageUser);
         return rs;
     }
 

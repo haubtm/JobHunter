@@ -25,7 +25,7 @@ public class CompanyServiceImpl implements CompanyService {
         ResultPaginationDTO rs = new ResultPaginationDTO();
         Meta meta = new Meta();
 
-        meta.setPage(pageCompany.getNumber());
+        meta.setPage(pageCompany.getNumber() + 1);
         meta.setPageSize(pageCompany.getSize());
 
         meta.setPages(pageCompany.getTotalPages());
