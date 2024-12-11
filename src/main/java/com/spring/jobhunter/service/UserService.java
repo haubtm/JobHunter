@@ -8,7 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.List;
 
 public interface UserService {
-    public ResultPaginationDTO getAllUsers(Specification<User> userSpecification);
+    public ResultPaginationDTO getAllUsers(Specification<User> userSpecification, Pageable pageable);
     public User getUserById(Long id);
     public User saveOrUpdateUser(User user);
     public void deleteUser(Long id);

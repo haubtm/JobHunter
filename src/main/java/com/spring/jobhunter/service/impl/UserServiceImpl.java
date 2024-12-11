@@ -19,19 +19,19 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
 
     @Override
-    public ResultPaginationDTO getAllUsers(Specification<User> userSpecification) {
-        List<User> pageUser = userRepository.findAll(userSpecification);
+    public ResultPaginationDTO getAllUsers(Specification<User> userSpecification, Pageable pageable) {
+        Page<User> pageUser = userRepository.findAll(userSpecification, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
         Meta meta = new Meta();
 
-//        meta.setPage(pageUser.getNumber() + 1);
-//        meta.setPageSize(pageUser.getSize());
-//
-//        meta.setPages(pageUser.getTotalPages());
-//        meta.setTotal(pageUser.getTotalElements());
+        meta.setPage(pageUser.getNumber() + 1);
+        meta.setPageSize(pageUser.getSize());
+
+        meta.setPages(pageUser.getTotalPages());
+        meta.setTotal(pageUser.getTotalElements());
 
         rs.setMeta(meta);
-        rs.setResult(pageUser);
+        rs.setResult(pageUser.getContent());
         return rs;
     }
 

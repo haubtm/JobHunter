@@ -9,6 +9,7 @@ import com.spring.jobhunter.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,8 +21,8 @@ public class CompanyServiceImpl implements CompanyService {
     CompanyRepository companyRepository;
 
     @Override
-    public ResultPaginationDTO getAllCompanies(Pageable pageable) {
-        Page<Company> pageCompany = companyRepository.findAll(pageable);
+    public ResultPaginationDTO getAllCompanies(Specification<Company> companySpecification, Pageable pageable) {
+        Page<Company> pageCompany = companyRepository.findAll(companySpecification, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
         Meta meta = new Meta();
 
