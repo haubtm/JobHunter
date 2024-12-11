@@ -4,6 +4,7 @@ import com.spring.jobhunter.domain.Company;
 import com.spring.jobhunter.domain.User;
 import com.spring.jobhunter.domain.dto.ResultPaginationDTO;
 import com.spring.jobhunter.service.CompanyService;
+import com.spring.jobhunter.util.annotation.ApiMessage;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,13 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/api/v1")
 public class CompanyController {
     @Autowired
     private CompanyService companyService;
 
     @GetMapping("/companies")
+    @ApiMessage("Get all companies")
     public ResponseEntity<ResultPaginationDTO> getAllCompanies(
             @Filter Specification<Company> companySpecification,
             Pageable pageable) {
