@@ -3,6 +3,7 @@ package com.spring.jobhunter.controller;
 import com.spring.jobhunter.domain.User;
 import com.spring.jobhunter.domain.dto.ResultPaginationDTO;
 import com.spring.jobhunter.service.UserService;
+import com.spring.jobhunter.util.annotation.ApiMessage;
 import com.spring.jobhunter.util.error.IdInvalidException;
 import com.turkraft.springfilter.boot.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,8 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<ResultPaginationDTO> getUser(
+    @ApiMessage("Get all users")
+    public ResponseEntity<ResultPaginationDTO> getAllUser(
             @Filter Specification<User> userSpecification,
             Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers(userSpecification, pageable));
