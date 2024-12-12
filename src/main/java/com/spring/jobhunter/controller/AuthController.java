@@ -5,6 +5,7 @@ import com.spring.jobhunter.domain.dto.LoginDTO;
 import com.spring.jobhunter.domain.dto.ResLoginDTO;
 import com.spring.jobhunter.service.UserService;
 import com.spring.jobhunter.util.SecurityUtil;
+import com.spring.jobhunter.util.annotation.ApiMessage;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,10 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -35,14 +33,14 @@ public class AuthController {
     @Value("${jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
         // Xac thuc nguoi dung
         Authentication authentication = ạuthenticationManagerBuilder.getObject().authenticate(authenticationToken);
         //Create access token
-        String access_token = securityUtil.createAccessToken(authentication);
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         ResLoginDTO res = new ResLoginDTO();
@@ -51,6 +49,8 @@ public class AuthController {
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUser.getId(), currentUser.getUsername(), currentUser.getEmail());
             res.setUser(userLogin);
         }
+
+        String access_token = securityUtil.createAccessToken(authentication, res.getUser());
         res.setAccessToken(access_token);
 
         //Create refresh token
@@ -70,5 +70,20 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, resCookies.toString())
                 .body(res);
+    }
+
+    @GetMapping("/auth/account")
+    @ApiMessage("Get account")
+    public ResponseEntity<ResLoginDTO.UserLogin> getAccount() {
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
+
+        User currentUser = userService.getUserByUsername(email);
+        ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
+        if (currentUser != null) {
+            userLogin.setId(currentUser.getId());
+            userLogin.setUsername(currentUser.getUsername());
+            userLogin.setEmail(currentUser.getEmail());
+        }
+        return ResponseEntity.ok(userLogin);
     }
 }
