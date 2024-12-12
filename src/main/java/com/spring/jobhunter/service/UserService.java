@@ -21,4 +21,5 @@ public interface UserService {
     ResCreateUserDTO convertToResCreateUserDTO(User user);
     ResUserDTO convertToResUserDTO(User user);
     ResUpdateUserDTO convertToResUpdateUserDTO(User user);
+    void updateUserToken(String token, String username);
 }

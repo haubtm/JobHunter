@@ -123,4 +123,13 @@ public class UserServiceImpl implements UserService {
         res.setUpdatedAt(user.getUpdatedAt());
         return res;
     }
+
+    @Override
+    public void updateUserToken(String token, String username) {
+        User user = userRepository.findByEmail(username);
+        if (user != null) {
+            user.setRefreshToken(token);
+            userRepository.save(user);
+        }
+    }
 }

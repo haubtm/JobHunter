@@ -7,6 +7,9 @@ import com.spring.jobhunter.service.UserService;
 import com.spring.jobhunter.util.SecurityUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -29,14 +32,17 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
+    @Value("${jwt.refresh-token-validity-in-seconds}")
+    private long refreshTokenExpiration;
+
     @PostMapping("/login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
         // Xac thuc nguoi dung
         Authentication authentication = ạuthenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        //Create token
-        String access_token = securityUtil.createToken(authentication);
+        //Create access token
+        String access_token = securityUtil.createAccessToken(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         ResLoginDTO res = new ResLoginDTO();
@@ -46,6 +52,23 @@ public class AuthController {
             res.setUser(userLogin);
         }
         res.setAccessToken(access_token);
-        return ResponseEntity.ok().body(res);
+
+        //Create refresh token
+        String refresh_token = securityUtil.createRefreshToken(loginDTO.getUsername(), res);
+
+        //Update user token
+        userService.updateUserToken(refresh_token, loginDTO.getUsername());
+
+        //Set cookies
+        ResponseCookie resCookies = ResponseCookie.from("refresh_token", refresh_token)
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(refreshTokenExpiration)
+                .path("/")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, resCookies.toString())
+                .body(res);
     }
 }
