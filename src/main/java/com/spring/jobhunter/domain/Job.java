@@ -1,10 +1,10 @@
 package com.spring.jobhunter.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.spring.jobhunter.util.SecurityUtil;
+import com.spring.jobhunter.util.constant.LevelEnum;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,38 +12,43 @@ import java.time.Instant;
 import java.util.List;
 
 @Entity
-@Table(name = "companies")
+@Table(name = "jobs")
 @Getter
 @Setter
-public class Company {
+public class Job {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "Name is required")
     private String name;
+    private String location;
+    private long salary;
+    private int quantity;
+    private LevelEnum level;
 
     @Column(columnDefinition = "MEDIUMTEXT")
     private String description;
 
-    private String address;
-    private String logo;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GTM+7")
+    private Instant startDate;
+    private Instant endDate;
+    private boolean active;
     private Instant createdAt;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GTM+7")
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;
 
-    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<User> users;
+    @ManyToOne
+    @JoinColumn(name = "company_id")
+    private Company company;
 
-    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Job> jobs;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = {"jobs"})
+    @JoinTable(
+            name = "job_skill",
+            joinColumns = @JoinColumn(name = "job_id"),
+            inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private List<Skill> skills;
 
     @PrePersist
     public void handleBeforeInsert() {
