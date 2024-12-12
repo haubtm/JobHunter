@@ -6,6 +6,7 @@ import com.spring.jobhunter.domain.dto.ResLoginDTO;
 import com.spring.jobhunter.service.UserService;
 import com.spring.jobhunter.util.SecurityUtil;
 import com.spring.jobhunter.util.annotation.ApiMessage;
+import com.spring.jobhunter.util.error.IdInvalidException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,7 +53,7 @@ public class AuthController {
             res.setUser(userLogin);
         }
 
-        String access_token = securityUtil.createAccessToken(authentication, res.getUser());
+        String access_token = securityUtil.createAccessToken(authentication.getName(), res.getUser());
         res.setAccessToken(access_token);
 
         //Create refresh token
@@ -91,9 +92,43 @@ public class AuthController {
 
     @GetMapping("/auth/refresh")
     @ApiMessage("Get user by refresh token")
-    public ResponseEntity<String> getRefreshToken(@CookieValue(name = "refresh_token") String refresh_token) {
+    public ResponseEntity<ResLoginDTO> getRefreshToken(@CookieValue(name = "refresh_token", defaultValue = "noToken") String refresh_token) throws IdInvalidException {
+        if (refresh_token.equals("refresh_token")){
+            throw new IdInvalidException("Khong co refresh token o cookie");
+        }
+
         Jwt decodedToken = this.securityUtil.checkValidRefreshToken(refresh_token);
         String email = decodedToken.getSubject();
-        return ResponseEntity.ok().body(email);
+        User currentUser = userService.getUserByRefreshTokenAndEmail(refresh_token, email);
+        if(currentUser == null){
+            throw new IdInvalidException("Refresh token khong hop le");
+        }
+        ResLoginDTO res = new ResLoginDTO();
+        User currentUserDB = userService.getUserByUsername(email);
+        if (currentUserDB != null) {
+            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUserDB.getId(), currentUserDB.getUsername(), currentUserDB.getEmail());
+            res.setUser(userLogin);
+        }
+
+        String access_token = securityUtil.createAccessToken(email, res.getUser());
+        res.setAccessToken(access_token);
+
+        //Create refresh token
+        String new_refresh_token = securityUtil.createRefreshToken(email, res);
+
+        //Update user token
+        userService.updateUserToken(refresh_token, email);
+
+        //Set cookies
+        ResponseCookie resCookies = ResponseCookie.from("refresh_token", new_refresh_token)
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(refreshTokenExpiration)
+                .path("/")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, resCookies.toString())
+                .body(res);
     }
 }
