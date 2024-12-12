@@ -41,6 +41,7 @@ public class AuthController {
         Authentication authentication = ạuthenticationManagerBuilder.getObject().authenticate(authenticationToken);
         //Create access token
 
+        //Set thong tin nguoi dung dang nhap vao context de su dung sau nay
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         ResLoginDTO res = new ResLoginDTO();
