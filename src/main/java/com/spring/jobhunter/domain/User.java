@@ -1,5 +1,6 @@
 package com.spring.jobhunter.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.spring.jobhunter.util.SecurityUtil;
 import com.spring.jobhunter.util.constant.GenderEnum;
 import jakarta.persistence.*;
@@ -30,8 +31,13 @@ public class User {
     private GenderEnum gender;
     private String address;
     private String refreshToken;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GTM+7")
     private Instant createdAt;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GTM+7")
     private Instant updatedAt;
+
     private String createdBy;
     private String updatedBy;
 

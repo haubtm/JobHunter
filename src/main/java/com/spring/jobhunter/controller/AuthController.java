@@ -1,7 +1,9 @@
 package com.spring.jobhunter.controller;
 
+import com.spring.jobhunter.domain.User;
 import com.spring.jobhunter.domain.dto.LoginDTO;
 import com.spring.jobhunter.domain.dto.ResLoginDTO;
+import com.spring.jobhunter.service.UserService;
 import com.spring.jobhunter.util.SecurityUtil;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class AuthController {
     @Autowired
     private SecurityUtil securityUtil;
 
+    @Autowired
+    private UserService userService;
+
     @PostMapping("/login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
         UsernamePasswordAuthenticationToken authenticationToken =
@@ -34,8 +39,13 @@ public class AuthController {
         String access_token = securityUtil.createToken(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        ResLoginDTO resLoginDTO = new ResLoginDTO();
-        resLoginDTO.setAccessToken(access_token);
-        return ResponseEntity.ok().body(resLoginDTO);
+        ResLoginDTO res = new ResLoginDTO();
+        User currentUser = userService.getUserByUsername(loginDTO.getUsername());
+        if (currentUser != null) {
+            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUser.getId(), currentUser.getUsername(), currentUser.getEmail());
+            res.setUser(userLogin);
+        }
+        res.setAccessToken(access_token);
+        return ResponseEntity.ok().body(res);
     }
 }

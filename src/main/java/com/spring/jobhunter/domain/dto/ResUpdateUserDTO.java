@@ -1,5 +1,6 @@
 package com.spring.jobhunter.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.spring.jobhunter.util.constant.GenderEnum;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,5 +15,6 @@ public class ResUpdateUserDTO {
     private GenderEnum gender;
     private String address;
     private int age;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GTM+7")
     private Instant updatedAt;
 }
