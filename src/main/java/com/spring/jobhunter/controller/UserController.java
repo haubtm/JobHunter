@@ -1,11 +1,15 @@
 package com.spring.jobhunter.controller;
 
 import com.spring.jobhunter.domain.User;
+import com.spring.jobhunter.domain.dto.ResCreateUserDTO;
+import com.spring.jobhunter.domain.dto.ResUpdateUserDTO;
+import com.spring.jobhunter.domain.dto.ResUserDTO;
 import com.spring.jobhunter.domain.dto.ResultPaginationDTO;
 import com.spring.jobhunter.service.UserService;
 import com.spring.jobhunter.util.annotation.ApiMessage;
 import com.spring.jobhunter.util.error.IdInvalidException;
 import com.turkraft.springfilter.boot.Filter;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,31 +45,45 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") Long id) {
+    @ApiMessage("Get user by id")
+    public ResponseEntity<ResUserDTO> getUserById(@PathVariable("id") Long id) throws IdInvalidException {
         User user = userService.getUserById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+        if(user == null) {
+            throw new IdInvalidException("User with id = " + id + " not found");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(userService.convertToResUserDTO(user));
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> saveUser(@RequestBody User user) {
+    @ApiMessage("Create new user")
+    public ResponseEntity<ResCreateUserDTO> saveUser(@Valid @RequestBody User user) throws IdInvalidException {
+        boolean isEmailExist = userService.isEmailExist(user.getEmail());
+        if (isEmailExist) {
+            throw new IdInvalidException("Email " + user.getEmail() + " da ton tai");
+        }
         String hashPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashPassword);
-        User savedUser = userService.saveOrUpdateUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        User savedUser = userService.saveUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.convertToResCreateUserDTO(savedUser));
     }
 
     @PutMapping("/users")
-    public ResponseEntity<User> updateUser(@RequestBody User user) {
-        User updatedUser = userService.saveOrUpdateUser(user);
-        return ResponseEntity.ok(updatedUser);
+    @ApiMessage("Update user")
+    public ResponseEntity<ResUpdateUserDTO> updateUser(@RequestBody User user) throws IdInvalidException {
+        User updatedUser = userService.updateUser(user);
+        if(updatedUser == null) {
+            throw new IdInvalidException("User with id = " + user.getId() + " not found");
+        }
+        return ResponseEntity.ok(userService.convertToResUpdateUserDTO(updatedUser));
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") Long id) throws IdInvalidException {
-        if (id >= 1500 ){
-            throw new IdInvalidException("Id khong lon hon 1500");
+    @ApiMessage("Delete user")
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) throws IdInvalidException {
+        if (userService.getUserById(id) == null) {
+            throw new IdInvalidException("User with id = " + id + " not found");
         }
         userService.deleteUser(id);
-        return ResponseEntity.status(HttpStatus.OK).body("User deleted successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

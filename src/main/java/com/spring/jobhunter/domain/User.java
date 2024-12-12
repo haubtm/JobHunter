@@ -1,7 +1,9 @@
 package com.spring.jobhunter.domain;
 
+import com.spring.jobhunter.util.SecurityUtil;
 import com.spring.jobhunter.util.constant.GenderEnum;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,8 +17,13 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     private String username;
+
+    @NotBlank(message = "Password is required")
     private String password;
+
+    @NotBlank(message = "Email is required")
     private String email;
     private int age;
     @Enumerated(EnumType.STRING)
@@ -27,4 +34,16 @@ public class User {
     private Instant updatedAt;
     private String createdBy;
     private String updatedBy;
+
+    @PrePersist
+    public void handleBeforeInsert() {
+        this.createdBy = SecurityUtil.getCurrentUserLogin().orElse("system");
+        this.createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void handleBeforeUpdate() {
+        this.updatedBy = SecurityUtil.getCurrentUserLogin().orElse("system");
+        this.updatedAt = Instant.now();
+    }
 }
