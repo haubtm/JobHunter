@@ -77,17 +77,19 @@ public class AuthController {
 
     @GetMapping("/auth/account")
     @ApiMessage("Get account")
-    public ResponseEntity<ResLoginDTO.UserLogin> getAccount() {
+    public ResponseEntity<ResLoginDTO.UserGetAccount> getAccount() {
         String email = SecurityUtil.getCurrentUserLogin().orElse("");
 
         User currentUser = userService.getUserByUsername(email);
         ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin();
+        ResLoginDTO.UserGetAccount userGetAccount = new ResLoginDTO.UserGetAccount();
         if (currentUser != null) {
             userLogin.setId(currentUser.getId());
             userLogin.setUsername(currentUser.getUsername());
             userLogin.setEmail(currentUser.getEmail());
+            userGetAccount.setUser(userLogin);
         }
-        return ResponseEntity.ok(userLogin);
+        return ResponseEntity.ok(userGetAccount);
     }
 
     @GetMapping("/auth/refresh")
@@ -130,5 +132,29 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, resCookies.toString())
                 .body(res);
+    }
+
+    @GetMapping("/auth/logout")
+    @ApiMessage("Logout")
+    public ResponseEntity<Void> logout() throws IdInvalidException {
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
+        if (email.equals("")) {
+            throw new IdInvalidException("Access Token khong hop le");
+        }
+
+        //Update user token
+        userService.updateUserToken(null, email);
+
+        //Remove refresh token cookie
+        ResponseCookie resCookies = ResponseCookie.from("refresh_token", null)
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(0)
+                .path("/")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, resCookies.toString())
+                .body(null);
     }
 }
