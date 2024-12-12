@@ -1,6 +1,6 @@
 package com.spring.jobhunter.util;
 
-import com.spring.jobhunter.domain.RestResponse;
+import com.spring.jobhunter.domain.response.RestResponse;
 import com.spring.jobhunter.util.annotation.ApiMessage;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.MethodParameter;

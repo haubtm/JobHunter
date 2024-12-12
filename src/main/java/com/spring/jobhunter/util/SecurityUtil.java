@@ -1,11 +1,10 @@
 package com.spring.jobhunter.util;
 
 import com.nimbusds.jose.util.Base64;
-import com.spring.jobhunter.domain.dto.ResLoginDTO;
+import com.spring.jobhunter.domain.response.ResLoginDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +19,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 public class SecurityUtil {

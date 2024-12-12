@@ -1,18 +1,18 @@
-package com.spring.jobhunter.domain.dto;
+package com.spring.jobhunter.domain.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class LoginDTO {
+public class ReqLoginDTO {
     @NotBlank(message = "Username khong duoc de trong")
     private String username;
 
     @NotBlank(message = "Password khong duoc de trong")
     private String password;
 
-    public LoginDTO() {
+    public ReqLoginDTO() {
     }
 
-    public LoginDTO(String username, String password) {
+    public ReqLoginDTO(String username, String password) {
         this.username = username;
         this.password = password;
     }

@@ -1,7 +1,10 @@
 package com.spring.jobhunter.service.impl;
 
 import com.spring.jobhunter.domain.User;
-import com.spring.jobhunter.domain.dto.*;
+import com.spring.jobhunter.domain.response.ResCreateUserDTO;
+import com.spring.jobhunter.domain.response.ResUpdateUserDTO;
+import com.spring.jobhunter.domain.response.ResUserDTO;
+import com.spring.jobhunter.domain.response.ResultPaginationDTO;
 import com.spring.jobhunter.repository.UserRepository;
 import com.spring.jobhunter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +25,7 @@ public class UserServiceImpl implements UserService {
     public ResultPaginationDTO getAllUsers(Specification<User> userSpecification, Pageable pageable) {
         Page<User> pageUser = userRepository.findAll(userSpecification, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
-        Meta meta = new Meta();
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
 
         meta.setPage(pageable.getPageNumber() + 1);
         meta.setPageSize(pageable.getPageSize());

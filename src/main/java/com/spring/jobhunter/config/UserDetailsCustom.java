@@ -1,4 +1,4 @@
-package com.spring.jobhunter.service.impl;
+package com.spring.jobhunter.config;
 
 import com.spring.jobhunter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

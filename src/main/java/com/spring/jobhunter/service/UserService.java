@@ -1,14 +1,12 @@
 package com.spring.jobhunter.service;
 
 import com.spring.jobhunter.domain.User;
-import com.spring.jobhunter.domain.dto.ResCreateUserDTO;
-import com.spring.jobhunter.domain.dto.ResUpdateUserDTO;
-import com.spring.jobhunter.domain.dto.ResUserDTO;
-import com.spring.jobhunter.domain.dto.ResultPaginationDTO;
+import com.spring.jobhunter.domain.response.ResCreateUserDTO;
+import com.spring.jobhunter.domain.response.ResUpdateUserDTO;
+import com.spring.jobhunter.domain.response.ResUserDTO;
+import com.spring.jobhunter.domain.response.ResultPaginationDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-
-import java.util.List;
 
 public interface UserService {
     public ResultPaginationDTO getAllUsers(Specification<User> userSpecification, Pageable pageable);

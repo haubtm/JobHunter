@@ -1,9 +1,7 @@
 package com.spring.jobhunter.service.impl;
 
 import com.spring.jobhunter.domain.Company;
-import com.spring.jobhunter.domain.User;
-import com.spring.jobhunter.domain.dto.Meta;
-import com.spring.jobhunter.domain.dto.ResultPaginationDTO;
+import com.spring.jobhunter.domain.response.ResultPaginationDTO;
 import com.spring.jobhunter.repository.CompanyRepository;
 import com.spring.jobhunter.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,7 +21,7 @@ public class CompanyServiceImpl implements CompanyService {
     public ResultPaginationDTO getAllCompanies(Specification<Company> companySpecification, Pageable pageable) {
         Page<Company> pageCompany = companyRepository.findAll(companySpecification, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
-        Meta meta = new Meta();
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
 
         meta.setPage(pageable.getPageNumber() + 1);
         meta.setPageSize(pageable.getPageSize());

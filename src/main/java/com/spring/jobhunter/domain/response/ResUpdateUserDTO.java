@@ -1,4 +1,4 @@
-package com.spring.jobhunter.domain.dto;
+package com.spring.jobhunter.domain.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.spring.jobhunter.util.constant.GenderEnum;

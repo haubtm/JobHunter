@@ -1,4 +1,4 @@
-package com.spring.jobhunter.domain;
+package com.spring.jobhunter.domain.response;
 
 public class RestResponse<T> {
     private int statusCode;

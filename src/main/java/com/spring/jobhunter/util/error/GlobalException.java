@@ -1,6 +1,6 @@
 package com.spring.jobhunter.util.error;
 
-import com.spring.jobhunter.domain.RestResponse;
+import com.spring.jobhunter.domain.response.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;

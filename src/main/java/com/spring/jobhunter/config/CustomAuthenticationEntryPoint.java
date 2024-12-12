@@ -1,7 +1,7 @@
 package com.spring.jobhunter.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring.jobhunter.domain.RestResponse;
+import com.spring.jobhunter.domain.response.RestResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

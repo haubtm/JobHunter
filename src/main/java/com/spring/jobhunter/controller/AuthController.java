@@ -1,8 +1,8 @@
 package com.spring.jobhunter.controller;
 
 import com.spring.jobhunter.domain.User;
-import com.spring.jobhunter.domain.dto.LoginDTO;
-import com.spring.jobhunter.domain.dto.ResLoginDTO;
+import com.spring.jobhunter.domain.request.ReqLoginDTO;
+import com.spring.jobhunter.domain.response.ResLoginDTO;
 import com.spring.jobhunter.service.UserService;
 import com.spring.jobhunter.util.SecurityUtil;
 import com.spring.jobhunter.util.annotation.ApiMessage;
@@ -36,9 +36,9 @@ public class AuthController {
     private long refreshTokenExpiration;
 
     @PostMapping("/auth/login")
-    public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody ReqLoginDTO reqLoginDTO) {
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginDTO.getUsername(), loginDTO.getPassword());
+                new UsernamePasswordAuthenticationToken(reqLoginDTO.getUsername(), reqLoginDTO.getPassword());
         // Xac thuc nguoi dung
         Authentication authentication = ạuthenticationManagerBuilder.getObject().authenticate(authenticationToken);
         //Create access token
@@ -47,7 +47,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         ResLoginDTO res = new ResLoginDTO();
-        User currentUser = userService.getUserByUsername(loginDTO.getUsername());
+        User currentUser = userService.getUserByUsername(reqLoginDTO.getUsername());
         if (currentUser != null) {
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUser.getId(), currentUser.getUsername(), currentUser.getEmail());
             res.setUser(userLogin);
@@ -57,10 +57,10 @@ public class AuthController {
         res.setAccessToken(access_token);
 
         //Create refresh token
-        String refresh_token = securityUtil.createRefreshToken(loginDTO.getUsername(), res);
+        String refresh_token = securityUtil.createRefreshToken(reqLoginDTO.getUsername(), res);
 
         //Update user token
-        userService.updateUserToken(refresh_token, loginDTO.getUsername());
+        userService.updateUserToken(refresh_token, reqLoginDTO.getUsername());
 
         //Set cookies
         ResponseCookie resCookies = ResponseCookie.from("refresh_token", refresh_token)

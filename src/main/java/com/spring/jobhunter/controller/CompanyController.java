@@ -1,22 +1,17 @@
 package com.spring.jobhunter.controller;
 
 import com.spring.jobhunter.domain.Company;
-import com.spring.jobhunter.domain.User;
-import com.spring.jobhunter.domain.dto.ResultPaginationDTO;
+import com.spring.jobhunter.domain.response.ResultPaginationDTO;
 import com.spring.jobhunter.service.CompanyService;
 import com.spring.jobhunter.util.annotation.ApiMessage;
 import com.turkraft.springfilter.boot.Filter;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1")
