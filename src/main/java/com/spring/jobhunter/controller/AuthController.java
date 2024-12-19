@@ -2,6 +2,7 @@ package com.spring.jobhunter.controller;
 
 import com.spring.jobhunter.domain.User;
 import com.spring.jobhunter.domain.request.ReqLoginDTO;
+import com.spring.jobhunter.domain.response.ResCreateUserDTO;
 import com.spring.jobhunter.domain.response.ResLoginDTO;
 import com.spring.jobhunter.service.UserService;
 import com.spring.jobhunter.util.SecurityUtil;
@@ -11,12 +12,14 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +34,9 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Value("${jwt.refresh-token-validity-in-seconds}")
     private long refreshTokenExpiration;
@@ -49,11 +55,15 @@ public class AuthController {
         ResLoginDTO res = new ResLoginDTO();
         User currentUser = userService.getUserByUsername(reqLoginDTO.getUsername());
         if (currentUser != null) {
-            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUser.getId(), currentUser.getUsername(), currentUser.getEmail());
+            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
+                    currentUser.getId(),
+                    currentUser.getUsername(),
+                    currentUser.getEmail(),
+                    currentUser.getRole());
             res.setUser(userLogin);
         }
 
-        String access_token = securityUtil.createAccessToken(authentication.getName(), res.getUser());
+        String access_token = securityUtil.createAccessToken(authentication.getName(), res);
         res.setAccessToken(access_token);
 
         //Create refresh token
@@ -108,11 +118,15 @@ public class AuthController {
         ResLoginDTO res = new ResLoginDTO();
         User currentUserDB = userService.getUserByUsername(email);
         if (currentUserDB != null) {
-            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUserDB.getId(), currentUserDB.getUsername(), currentUserDB.getEmail());
+            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(
+                    currentUserDB.getId(),
+                    currentUserDB.getUsername(),
+                    currentUserDB.getEmail(),
+                    currentUserDB.getRole());
             res.setUser(userLogin);
         }
 
-        String access_token = securityUtil.createAccessToken(email, res.getUser());
+        String access_token = securityUtil.createAccessToken(email, res);
         res.setAccessToken(access_token);
 
         //Create refresh token
@@ -156,5 +170,17 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, resCookies.toString())
                 .body(null);
+    }
+
+    @PostMapping("/auth/register")
+    @ApiMessage("Register")
+    public ResponseEntity<ResCreateUserDTO> register(@Valid @RequestBody User user) throws IdInvalidException {
+        if(userService.isEmailExist(user.getEmail())) {
+            throw new IdInvalidException("Email da ton tai");
+        }
+        String hashPassword = passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashPassword);
+        User savedUser = userService.saveUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.convertToResCreateUserDTO(savedUser));
     }
 }

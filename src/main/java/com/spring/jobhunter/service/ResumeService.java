@@ -15,4 +15,5 @@ public interface ResumeService {
     ResUpdateResumeDTO updateResume(Resume resume);
     void deleteResume(long id);
     ResResumeDTO convertToResResumeDTO(Resume resume);
+    ResultPaginationDTO getResumeByUser(Pageable pageable);
 }

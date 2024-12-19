@@ -1,9 +1,7 @@
 package com.spring.jobhunter.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.spring.jobhunter.util.SecurityUtil;
-import com.spring.jobhunter.util.constant.GenderEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -13,49 +11,35 @@ import java.time.Instant;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "permissions")
 @Getter
 @Setter
-public class User {
+public class Permission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String username;
+    @NotBlank(message = "Name is required")
+    private String name;
 
-    @NotBlank(message = "Password is required")
-    private String password;
+    @NotBlank(message = "Api path is required")
+    private String apiPath;
 
-    @NotBlank(message = "Email is required")
-    private String email;
-    private int age;
-    @Enumerated(EnumType.STRING)
-    private GenderEnum gender;
-    private String address;
+    @NotBlank(message = "Method is required")
+    private String method;
 
-    @Column(columnDefinition = "MEDIUMTEXT")
-    private String refreshToken;
+    @NotBlank(message = "Module is required")
+    private String module;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GTM+7")
     private Instant createdAt;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss a", timezone = "GTM+7")
     private Instant updatedAt;
 
     private String createdBy;
     private String updatedBy;
 
-    @ManyToOne
-    @JoinColumn(name = "company_id")
-    private Company company;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
     @JsonIgnore
-    List<Resume> resumes;
-
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+    private List<Role> roles;
 
     @PrePersist
     public void handleBeforeInsert() {

@@ -7,6 +7,11 @@ import com.spring.jobhunter.domain.response.resume.ResResumeDTO;
 import com.spring.jobhunter.domain.response.resume.ResUpdateResumeDTO;
 import com.spring.jobhunter.repository.ResumeRepository;
 import com.spring.jobhunter.service.ResumeService;
+import com.spring.jobhunter.util.SecurityUtil;
+import com.turkraft.springfilter.converter.FilterSpecification;
+import com.turkraft.springfilter.converter.FilterSpecificationConverter;
+import com.turkraft.springfilter.parser.FilterParser;
+import com.turkraft.springfilter.parser.node.FilterNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +25,12 @@ import java.util.stream.Collectors;
 public class ResumeServiceImpl implements ResumeService {
     @Autowired
     private ResumeRepository resumeRepository;
+
+    @Autowired
+    private FilterParser filterParser;
+
+    @Autowired
+    private FilterSpecificationConverter filterSpecificationConverter;
 
     @Override
     public ResultPaginationDTO getAllResume(Specification<Resume> specification, Pageable pageable) {
@@ -103,5 +114,34 @@ public class ResumeServiceImpl implements ResumeService {
         res.setUser(resUser);
 
         return res;
+    }
+
+    @Override
+    public ResultPaginationDTO getResumeByUser(Pageable pageable) {
+        String email = SecurityUtil.getCurrentUserLogin().orElse("");
+        FilterNode filterNode = filterParser.parse("email ='" + email + "'");
+        FilterSpecification<Resume> spec = filterSpecificationConverter.convert(filterNode);
+        Page<Resume> pageResume = resumeRepository.findAll(spec, pageable);
+
+        ResultPaginationDTO rs = new ResultPaginationDTO();
+        ResultPaginationDTO.Meta meta = new ResultPaginationDTO.Meta();
+
+        meta.setPage(pageable.getPageNumber() + 1);
+        meta.setPageSize(pageable.getPageSize());
+
+        meta.setPages(pageResume.getTotalPages());
+        meta.setTotal(pageResume.getTotalElements());
+
+        rs.setMeta(meta);
+
+        // remove sensitive data
+        List<ResResumeDTO> listResume = pageResume.getContent()
+                .stream().map(item -> convertToResResumeDTO(item))
+                .collect(Collectors.toList());
+
+        rs.setResult(listResume);
+
+        return rs;
+
     }
 }

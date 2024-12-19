@@ -9,6 +9,7 @@ import com.spring.jobhunter.domain.response.ResultPaginationDTO;
 import com.spring.jobhunter.repository.CompanyRepository;
 import com.spring.jobhunter.repository.UserRepository;
 import com.spring.jobhunter.service.CompanyService;
+import com.spring.jobhunter.service.RoleService;
 import com.spring.jobhunter.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private CompanyRepository companyRepository;
 
+    @Autowired
+    private RoleService roleService;
+
     @Override
     public ResultPaginationDTO getAllUsers(Specification<User> userSpecification, Pageable pageable) {
         Page<User> pageUser = userRepository.findAll(userSpecification, pageable);
@@ -42,19 +46,7 @@ public class UserServiceImpl implements UserService {
         rs.setMeta(meta);
 
         List<ResUserDTO> listUser = pageUser.getContent()
-                        .stream().map(item -> new ResUserDTO(
-                                item.getId(),
-                                item.getEmail(),
-                                item.getUsername(),
-                                item.getGender(),
-                                item.getAddress(),
-                                item.getAge(),
-                                item.getCreatedAt(),
-                                item.getUpdatedAt(),
-                                item.getCompany() != null ? new ResUserDTO.CompanyUser(
-                                        item.getCompany().getId(),
-                                        item.getCompany().getName()
-                                ) : null))
+                        .stream().map(item -> this.convertToResUserDTO(item))
                 .collect(Collectors.toList());
         rs.setResult(listUser);
         return rs;
@@ -71,6 +63,10 @@ public class UserServiceImpl implements UserService {
             Company company = companyRepository.findById(user.getCompany().getId()).orElse(null);
             user.setCompany(company);
         }
+
+        if(user.getRole() != null) {
+            user.setRole(roleService.getRoleById(user.getRole().getId()));
+        }
         return userRepository.save(user);
     }
 
@@ -86,6 +82,10 @@ public class UserServiceImpl implements UserService {
             if (user.getCompany() != null) {
                 Company company = companyRepository.findById(user.getCompany().getId()).orElse(null);
                 currentUser.setCompany(company);
+            }
+
+            if(user.getRole() != null) {
+                user.setRole(roleService.getRoleById(user.getRole().getId()));
             }
 
             currentUser = userRepository.save(currentUser);
@@ -133,6 +133,7 @@ public class UserServiceImpl implements UserService {
     public ResUserDTO convertToResUserDTO(User user) {
         ResUserDTO res = new ResUserDTO();
         ResUserDTO.CompanyUser companyUser = new ResUserDTO.CompanyUser();
+        ResUserDTO.RoleUser roleUser = new ResUserDTO.RoleUser();
 
         res.setId(user.getId());
         res.setEmail(user.getEmail());
@@ -147,6 +148,12 @@ public class UserServiceImpl implements UserService {
             companyUser.setId(user.getCompany().getId());
             companyUser.setName(user.getCompany().getName());
             res.setCompany(companyUser);
+        }
+
+        if (user.getRole() != null) {
+            roleUser.setId(user.getRole().getId());
+            roleUser.setName(user.getRole().getName());
+            res.setRole(roleUser);
         }
         return res;
     }
