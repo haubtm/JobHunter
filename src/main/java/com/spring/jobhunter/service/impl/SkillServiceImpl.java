@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SkillServiceImpl implements SkillService {
@@ -56,8 +57,15 @@ public class SkillServiceImpl implements SkillService {
 
     @Override
     public void deleteSkill(long id) {
-        Skill currentSkill = skillRepository.findById(id).orElse(null);
+        // delete job (inside job_skill table)
+        Optional<Skill> skillOptional = this.skillRepository.findById(id);
+        Skill currentSkill = skillOptional.get();
         currentSkill.getJobs().forEach(job -> job.getSkills().remove(currentSkill));
-        skillRepository.delete(currentSkill);
+
+        // delete subscriber (inside subscriber_skill table)
+        currentSkill.getSubscribers().forEach(subs -> subs.getSkills().remove(currentSkill));
+
+        // delete skill
+        this.skillRepository.delete(currentSkill);
     }
 }
