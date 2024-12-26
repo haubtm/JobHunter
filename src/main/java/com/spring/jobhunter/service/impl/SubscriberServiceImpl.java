@@ -1,9 +1,13 @@
 package com.spring.jobhunter.service.impl;
 
+import com.spring.jobhunter.domain.Job;
 import com.spring.jobhunter.domain.Skill;
 import com.spring.jobhunter.domain.Subscriber;
+import com.spring.jobhunter.domain.response.email.ResEmailJob;
+import com.spring.jobhunter.repository.JobRepository;
 import com.spring.jobhunter.repository.SkillRepository;
 import com.spring.jobhunter.repository.SubscriberRepository;
+import com.spring.jobhunter.service.EmailService;
 import com.spring.jobhunter.service.SubscriberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,12 @@ public class SubscriberServiceImpl implements SubscriberService {
 
     @Autowired
     private SkillRepository skillRepository;
+
+    @Autowired
+    private JobRepository jobRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public boolean isExistsByEmail(String email) {
@@ -60,5 +70,41 @@ public class SubscriberServiceImpl implements SubscriberService {
         if (subsOptional.isPresent())
             return subsOptional.get();
         return null;
+    }
+
+    public ResEmailJob convertJobToSendEmail(Job job) {
+        ResEmailJob res = new ResEmailJob();
+        res.setName(job.getName());
+        res.setSalary(job.getSalary());
+        res.setCompany(new ResEmailJob.CompanyEmail(job.getCompany().getName()));
+        List<Skill> skills = job.getSkills();
+        List<ResEmailJob.SkillEmail> s = skills.stream().map(skill -> new
+                        ResEmailJob.SkillEmail(skill.getName()))
+                .collect(Collectors.toList());
+        res.setSkills(s);
+        return res;
+    }
+
+    @Override
+    public void sendSubscribersEmailJobs() {
+        List<Subscriber> listSubs = this.subscriberRepository.findAll();
+        if (listSubs != null && listSubs.size() > 0) {
+            for (Subscriber sub : listSubs) {
+                List<Skill> listSkills = sub.getSkills();
+                if (listSkills != null && listSkills.size() > 0) {
+                    List<Job> listJobs = this.jobRepository.findBySkillsIn(listSkills);
+                    if (listJobs != null && listJobs.size() > 0) {
+                        List<ResEmailJob> arr = listJobs.stream().map(
+                            job -> this.convertJobToSendEmail(job)).collect(Collectors.toList());
+                        this.emailService.sendEmailFromTemplateSync(
+                                sub.getEmail(),
+                                "Cơ hội việc làm hot đang chờ đón bạn, khám phá ngay",
+                                "job",
+                                sub.getName(),
+                                listJobs);
+                    }
+                }
+            }
+        }
     }
 }

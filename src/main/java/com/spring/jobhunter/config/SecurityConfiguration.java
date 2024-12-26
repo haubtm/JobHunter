@@ -24,9 +24,11 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
-        String [] whiteList = {
+        String [] whiteList = new String[]{
                 "/",
-                "/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/register", "/storage/**",
+                "/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/register",
+                "/api/v1/email/**",
+                "/storage/**",
                 "/api/v1/companies/**", "/api/v1/job/**",
         };
         http
