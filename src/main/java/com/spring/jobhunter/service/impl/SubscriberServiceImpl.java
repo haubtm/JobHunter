@@ -107,4 +107,9 @@ public class SubscriberServiceImpl implements SubscriberService {
             }
         }
     }
+
+    @Override
+    public Subscriber findByEmail(String email) {
+        return this.subscriberRepository.findByEmail(email);
+    }
 }

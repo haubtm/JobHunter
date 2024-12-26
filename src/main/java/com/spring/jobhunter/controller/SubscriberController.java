@@ -2,6 +2,7 @@ package com.spring.jobhunter.controller;
 
 import com.spring.jobhunter.domain.Subscriber;
 import com.spring.jobhunter.service.SubscriberService;
+import com.spring.jobhunter.util.SecurityUtil;
 import com.spring.jobhunter.util.annotation.ApiMessage;
 import com.spring.jobhunter.util.error.IdInvalidException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,4 +45,12 @@ public class SubscriberController {
         return ResponseEntity.ok().body(this.subscriberService.update(subsDB, subsRequest));
     }
 
+    @PostMapping("/subscribers/skills")
+    @ApiMessage("Get subscriber's skills")
+    public ResponseEntity<Subscriber> getSubscribersSkill() throws IdInvalidException{
+        String email = SecurityUtil.getCurrentUserLogin().isPresent() == true
+            ? SecurityUtil.getCurrentUserLogin().get()
+            : "";
+        return ResponseEntity.ok().body(this.subscriberService.findByEmail(email));
+    }
 }

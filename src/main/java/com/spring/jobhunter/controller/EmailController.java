@@ -21,8 +21,8 @@ public class EmailController {
 
     @GetMapping("/email")
     @ApiMessage("Send Email")
-    @Scheduled(cron = "*/60 * * * * *")
-    @Transactional
+    //@Scheduled(cron = "*/60 * * * * *")
+    //@Transactional
     public String sendEmail() {
         //emailService.sendEmail();
         //emailService.sendEmailFromTemplateSync("haubuidoi111@gmail.com", "Test Email", "job");

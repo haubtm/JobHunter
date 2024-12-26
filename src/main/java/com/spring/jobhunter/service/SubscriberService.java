@@ -8,4 +8,5 @@ public interface SubscriberService {
     public Subscriber update(Subscriber subsDB, Subscriber subsRequest);
     public Subscriber findById(long id);
     public void sendSubscribersEmailJobs();
+    public Subscriber findByEmail(String email);
 }
