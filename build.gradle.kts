@@ -20,6 +20,7 @@ repositories {
 
 dependencies {
     implementation("com.turkraft.springfilter:jpa:3.1.7")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-mail")
